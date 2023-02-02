@@ -1,0 +1,19 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: aquamarine;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height:  100vh;
+    margin: 0;
+    font-family: 'Games', sans-serif;
+}
+
+canvas {
+    background-color: white;
+    border: 3px solid green;
+}
