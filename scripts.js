@@ -4,7 +4,7 @@ const ctx = canvas.getContext("2d");
 
 var centerX = canvas.width /2;
 var centerY = canvas.height /2;
-const winningScore = 3
+const winningScore = 3;
 
 //Ball specs
 //adjust dx and dy to get collision variety
@@ -14,7 +14,7 @@ let ball = {
     y: centerY,
     dx: 4,
     dy: 2,
-    speed: 2
+    speed: 1.2
 
 };
 
@@ -111,49 +111,51 @@ function upKey(o) {
 };
 
 //paddle and ball collison function for angles
-// function collision(b,p) {
-//     b.top = b.y - b.radius;
-//     b.bottom = b.y + b.radius;
-//     b.left = b.x - b.radius;
-//     b.right = b.x + b.radius;
+function collision(b,p) {
+    b.top = b.y - b.radius;
+    b.bottom = b.y + b.radius;
+    b.left = b.x - b.radius;
+    b.right = b.x + b.radius;
 
-//     p.top = p.y; //cause the rec drawing starts from the top
-//     p.bottom = p.y + p.height;
-//     p.left = p.x;
-//     p.right = p.x + p.width;
+    p.top = p.y; //cause the rec drawing starts from the top
+    p.bottom = p.y + p.height;
+    p.left = p.x;
+    p.right = p.x + p.width;
 
-//     //if return is true, then there is a collision
-//     return b.right > p.left && b.left < p.right && b.bottom > p.top &&
-//     b.top < p.bottom;
-// }
+    //if return is true, then there is a collision
+    return b.right > p.left && b.left < p.right && b.bottom > p.top &&
+    b.top < p.bottom;
+}
 
-// function collisionP1(b,p) {
-//     b.top = ball.y - ball.radius;
-//     b.bottom = ball.y + ball.radius;
-//     b.left = ball.x - ball.radius;
-//     b.right = ball.x + ball.radius;
 
-//     p.top = paddle1.y; //cause the rec drawing starts from the top
-//     p.bottom = paddle.y1 + paddleHeight;
-//     p.left = paddle1.x;
-//     p.right = paddle1.x + paddleWidth;
+function resetBall1() {
+    ball.x = canvas.width - ball.radius - paddle1.width;
+    ball.y = centerY;
 
-//     //if return is true, then there is a collision
-//     return b.right > p.left && b.left < p.right && b.bottom > p.top &&
-//     b.top < p.bottom;
-// }
+    ball.speed = 1.2;
+    ball.dx = ball.dx;
+}
 
-function render() {
+function resetBall2() {
+    ball.x = paddle2.width + ball.radius;
+    ball.y = centerY;
+
+    ball.speed = 1.2;
+    ball.dx = ball.dx;
+}
+
+function resetPaddle() {
+    paddle1.y = centerY - ((canvas.height - 430) / 2);
+    paddle2.y = centerY - ((canvas.height - 430) / 2);
+}
+
+function play() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBall();
     drawPaddle1();
     drawPaddle2();
     drawText(paddle1.score, 3 * canvas.width/4, canvas.height/5, 'black');
     drawText(paddle2.score, canvas.width/4, canvas.height/5, 'black');
-}
-
-function play() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    render()
     //ball movement
     ball.x += ball.speed * ball.dx;
     ball.y += ball.speed * ball.dy;
@@ -163,24 +165,35 @@ function play() {
         ball.dy *= -1;
     };
 
-    // var for angles
-    let player = (ball.x < (canvas.width/2)) ? paddle2 : paddle1;
+    let player = (ball.x > canvas.width/2) ? paddle1 : paddle2;
 
     //calling paddle ball collision
     if (collision(ball,player)) {
         //ball direction
         ball.dx *= -1;
         // ball.dy *= -1;
+    } 
 
-        //ball direction with angles?
-        // let collisionPoint = ball.y - (player.y + player.height);
-        // //collisionPoint = collisionPoint/(player.height/2);
-        // let angelRad = collisionPoint * Math.PI/4;
-        // let direction = (ball.x > (canvas.width/2)) ? 1 : -1;
-        // ball.dx = ball.speed * direction * Math.cos(angelRad);
-        // ball.dy = ball.speed * Math.sin(angelRad);
+    if (ball.x - ball.radius < 0){
+        paddle1.score++;
+        resetBall1();
+        resetPaddle();
 
-    };
+    } else if (ball.x + ball.radius > canvas.width) {
+        paddle2.score++;
+        resetBall2();
+        resetPaddle();
+    }
+
+    if (paddle1.score == winningScore) {
+        alert('Payer 1 Wins!')
+        paddle1.score = 0;
+        document.location.reload();
+    } else if (paddle2.score == winningScore) {
+        alert('Payer 2 Wins!');
+        paddle2.score = 0;
+        document.location.reload();
+    }
 
     // functions to control the paddels
     if (paddle1.upKey && paddle1.y > 0 ) {
@@ -200,9 +213,8 @@ function play() {
 
 
 function gameAtPlay() {
+    alert('Player 1 (right paddle) uses the up and down arrow keys while player 2 (left paddle) uses the a and z keys respectfully. Click okay to start!');
     play();
-
-
 }
 
 gameAtPlay()
